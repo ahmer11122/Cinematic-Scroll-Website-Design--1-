@@ -5,6 +5,9 @@ import imgHero from "figma:asset/f86da7fd626a01ceb96b847d0ceddf1eb065f3fd.png";
 export function HeroSequence() {
   const containerRef = useRef<HTMLDivElement>(null);
   const controls = useAnimation();
+  const text1Controls = useAnimation();
+  const text2Controls = useAnimation();
+  const overlayControls = useAnimation();
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -60,6 +63,21 @@ export function HeroSequence() {
 
       // Step 4: Navigate to "Frame 3"
       // Smart animate, cubic-bezier(0.65, 0.03, 0.33, 0.97), duration: 1500ms, delay: 1ms
+      overlayControls.start({
+        opacity: 1,
+        transition: { duration: 1.5, ease: [0.65, 0.03, 0.33, 0.97], delay: 0.001 }
+      });
+      text1Controls.start({
+        opacity: 1,
+        y: 0,
+        transition: { duration: 1.5, ease: [0.65, 0.03, 0.33, 0.97], delay: 0.001 }
+      });
+      text2Controls.start({
+        opacity: 1,
+        y: 0,
+        transition: { duration: 1.5, ease: [0.65, 0.03, 0.33, 0.97], delay: 0.3 }
+      });
+
       await controls.start({
         width: "100vw",
         height: "100vh",
@@ -72,7 +90,57 @@ export function HeroSequence() {
     };
 
     runSequence();
-  }, [controls]);
+
+    // Key/Gamepad interaction: returning from Frame 149 to Frame 2, then automatically to Frame 3
+    (window as any).__onReturnToHero = async () => {
+      // 1. Instantly snap to Frame 2 (width: "1920px", height: "1080px") during the scroll back
+      // And instantly HIDE all texts and overlay so they disappear!
+      overlayControls.start({ opacity: 0, transition: { duration: 0 } });
+      text1Controls.start({ opacity: 0, y: 30, transition: { duration: 0 } });
+      text2Controls.start({ opacity: 0, y: 30, transition: { duration: 0 } });
+
+      await controls.start({
+        width: "1920px",
+        height: "1080px",
+        transition: { duration: 0 } // instant snap
+      });
+
+      // 2. Wait for the 1.0s (1000ms) scroll-back to complete + 1ms delay
+      setTimeout(async () => {
+        // 3. Transition to Frame 3 (width: "100vw", height: "100vh")
+        // Animate: Smart animate (cubic-bezier(0.65, 0.03, 0.33, 0.97), duration: 1500ms, delay: 1ms)
+        // And fade the texts back in staggered!
+        overlayControls.start({
+          opacity: 1,
+          transition: { duration: 1.5, ease: [0.65, 0.03, 0.33, 0.97], delay: 0.001 }
+        });
+        text1Controls.start({
+          opacity: 1,
+          y: 0,
+          transition: { duration: 1.5, ease: [0.65, 0.03, 0.33, 0.97], delay: 0.001 }
+        });
+        text2Controls.start({
+          opacity: 1,
+          y: 0,
+          transition: { duration: 1.5, ease: [0.65, 0.03, 0.33, 0.97], delay: 0.3 }
+        });
+
+        await controls.start({
+          width: "100vw",
+          height: "100vh",
+          transition: {
+            duration: 1.5,
+            ease: [0.65, 0.03, 0.33, 0.97],
+            delay: 0.001,
+          }
+        });
+      }, 1000);
+    };
+
+    return () => {
+      delete (window as any).__onReturnToHero;
+    };
+  }, [controls, text1Controls, text2Controls, overlayControls]);
 
   return (
     <div ref={containerRef} className="relative h-[250vh] bg-[#030301]">
@@ -97,8 +165,7 @@ export function HeroSequence() {
             <motion.div 
               className="absolute inset-0 bg-black/20"
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 3.2, duration: 1 }}
+              animate={overlayControls}
             />
           </motion.div>
         </motion.div>
@@ -114,8 +181,7 @@ export function HeroSequence() {
             {/* Text 1 Inner for Mount animation */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 3.2, duration: 0.8, ease: "easeOut" }}
+              animate={text1Controls}
             >
               <div className="capitalize font-['Satoshi',sans-serif] font-black leading-[1.1] lg:leading-[110%] text-[#fffff9] text-[64px] md:text-[80px] lg:text-[104px] tracking-tight lg:tracking-[-2.08px] whitespace-nowrap">
                 <p className="mb-0">
@@ -138,8 +204,7 @@ export function HeroSequence() {
             {/* Text 2 Inner for Mount animation */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 3.5, duration: 0.8, ease: "easeOut" }}
+              animate={text2Controls}
             >
               <div className="font-['Satoshi',sans-serif] text-[#fffff9] text-[24px] md:text-[32px] lg:text-[44px] leading-tight lg:leading-[44px] tracking-tight">
                 <p className="font-normal text-[#fffff9] mb-0">I Design products and brands that feel clear, human, and</p>
@@ -153,4 +218,3 @@ export function HeroSequence() {
     </div>
   );
 }
-

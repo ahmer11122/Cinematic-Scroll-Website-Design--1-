@@ -36,8 +36,21 @@ export function NavBar() {
 
     if (target === "index") {
       (window as any).__scrollToSection(offsets.hero, 1000, figmaEase);
+      if (window.scrollY > 100 && typeof (window as any).__onReturnToHero === "function") {
+        (window as any).__onReturnToHero();
+      }
     } else if (target === "about") {
-      (window as any).__scrollToSection(offsets.about, 1500, figmaEase);
+      const f146 = offsets.about + 1.5 * window.innerHeight;
+      const f147 = offsets.about + 2.7 * window.innerHeight;
+      (window as any).__scrollToSection(offsets.about, 1500, figmaEase, () => {
+        setTimeout(() => {
+          (window as any).__scrollToSection(f146, 1500, figmaEase, () => {
+            setTimeout(() => {
+              (window as any).__scrollToSection(f147, 2000, figmaEase);
+            }, 1);
+          });
+        }, 1);
+      });
     } else if (target === "work") {
       (window as any).__scrollToSection(offsets.work); // default Lenis smooth scroll
     } else if (target === "contact") {

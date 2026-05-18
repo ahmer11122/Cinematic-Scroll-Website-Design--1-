@@ -39,12 +39,18 @@ export default function App() {
     rafId = requestAnimationFrame(raf);
 
     // Expose programmatic section scroll transitions
-    (window as any).__scrollToSection = (targetY: number, customDuration?: number, customEase?: (t: number) => number) => {
+    (window as any).__scrollToSection = (
+      targetY: number, 
+      customDuration?: number, 
+      customEase?: (t: number) => number,
+      onComplete?: () => void
+    ) => {
       if (!lenisRef.current) return;
       lenisRef.current.scrollTo(targetY, {
         duration: customDuration !== undefined ? customDuration / 1000 : 1.2, // convert to seconds
         easing: customEase,
         immediate: false,
+        onComplete,
       });
     };
 
@@ -54,13 +60,13 @@ export default function App() {
       return {
         hero: 0,
         about: 2.5 * vh,
-        expertise: 8.5 * vh,
-        work: 14.5 * vh,
-        contact: 22.5 * vh,
+        expertise: 10.5 * vh,
+        work: 16.5 * vh,
+        contact: 24.5 * vh,
       };
     };
 
-    // Keypress interceptors for transitions between Hero and Who I Am
+    // Keypress interceptors for transitions between Hero, Who I Am, and individual About frames
     const handleKeyDown = (e: KeyboardEvent) => {
       if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
         return;
@@ -68,23 +74,99 @@ export default function App() {
 
       const scrollY = window.scrollY;
       const vh = window.innerHeight;
-      const boundary = 2.5 * vh;
+      
+      // Frame heights/scroll positions mapped exactly to WhoSequence's scroll progress
+      const f145 = 2.5 * vh;                 // progress 0.0
+      const f146 = (2.5 + 1.92) * vh;        // progress 0.24 (Who I AM? and Small Image revealed)
+      const f149 = (2.5 + 2.72) * vh;        // progress 0.34 (Split text, centered image)
+      const f147 = (2.5 + 3.84) * vh;        // progress 0.48 (Fades to black, massive image background)
+      const f151 = (2.5 + 4.64) * vh;        // progress 0.58 (Paragraph 1 active)
+      const f152 = (2.5 + 5.44) * vh;        // progress 0.68 (Paragraph 2 active, parallax shift 1)
+      const f160 = (2.5 + 6.24) * vh;        // progress 0.78 (Paragraph 3 active, parallax shift 2)
+      const f161 = (2.5 + 7.04) * vh;        // progress 0.88 (Paragraph 4 active, parallax shift 3)
+      const endWho = 10.5 * vh;              // End of WhoSequence
 
       // Downwards key triggers: ArrowDown, Spacebar (without shift), PageDown
       const isDownKey = e.key === "ArrowDown" || (e.key === " " && !e.shiftKey) || e.key === "PageDown";
       // Upwards key triggers: ArrowUp, Spacebar (with shift), PageUp
       const isUpKey = e.key === "ArrowUp" || (e.key === " " && e.shiftKey) || e.key === "PageUp";
 
+      const threshold = 100; // Tolerance threshold to detect snap positions
+
       if (isDownKey) {
-        if (scrollY < boundary - 20) {
+        if (scrollY < f145 - threshold) {
+          // 1. From Hero, scroll to f145 -> f146 automatically (smart animate 1000ms / 1500ms)
           e.preventDefault();
-          (window as any).__scrollToSection(boundary, 1500, figmaEase);
+          (window as any).__scrollToSection(f145, 1000, figmaEase, () => {
+            setTimeout(() => {
+              (window as any).__scrollToSection(f146, 1000, figmaEase);
+            }, 1);
+          });
+        } else if (scrollY >= f145 - threshold && scrollY < f146 - threshold) {
+          // 2. From f145 snap to f146
+          e.preventDefault();
+          (window as any).__scrollToSection(f146, 1000, figmaEase);
+        } else if (scrollY >= f146 - threshold && scrollY < f149 - threshold) {
+          // 3. From f146 snap to f149 -> f147 (smart animate with 2000ms delay curve)
+          e.preventDefault();
+          (window as any).__scrollToSection(f149, 1000, figmaEase, () => {
+            setTimeout(() => {
+              (window as any).__scrollToSection(f147, 2000, figmaEase);
+            }, 1);
+          });
+        } else if (scrollY >= f149 - threshold && scrollY < f147 - threshold) {
+          e.preventDefault();
+          (window as any).__scrollToSection(f147, 2000, figmaEase);
+        } else if (scrollY >= f147 - threshold && scrollY < f151 - threshold) {
+          // 4. From f147 snap to f151
+          e.preventDefault();
+          (window as any).__scrollToSection(f151, 1000, figmaEase);
+        } else if (scrollY >= f151 - threshold && scrollY < f152 - threshold) {
+          // 5. From f151 snap to f152
+          e.preventDefault();
+          (window as any).__scrollToSection(f152, 1000, figmaEase);
+        } else if (scrollY >= f152 - threshold && scrollY < f160 - threshold) {
+          // 6. From f152 snap to f160
+          e.preventDefault();
+          (window as any).__scrollToSection(f160, 1000, figmaEase);
+        } else if (scrollY >= f160 - threshold && scrollY < f161 - threshold) {
+          // 7. From f160 snap to f161
+          e.preventDefault();
+          (window as any).__scrollToSection(f161, 1000, figmaEase);
+        } else if (scrollY >= f161 - threshold && scrollY < endWho - threshold) {
+          // 8. From f161, snap to Expertise section start
+          e.preventDefault();
+          (window as any).__scrollToSection(endWho, 1200, figmaEase);
         }
       } else if (isUpKey) {
-        // If viewing the top of Who I Am section, snap back to Hero
-        if (scrollY >= boundary - 10 && scrollY <= boundary + 150) {
+        if (scrollY >= endWho - threshold && scrollY < endWho + threshold) {
+          e.preventDefault();
+          (window as any).__scrollToSection(f161, 1200, figmaEase);
+        } else if (scrollY >= f161 - threshold && scrollY < f161 + threshold) {
+          e.preventDefault();
+          (window as any).__scrollToSection(f160, 1000, figmaEase);
+        } else if (scrollY >= f160 - threshold && scrollY < f160 + threshold) {
+          e.preventDefault();
+          (window as any).__scrollToSection(f152, 1000, figmaEase);
+        } else if (scrollY >= f152 - threshold && scrollY < f152 + threshold) {
+          e.preventDefault();
+          (window as any).__scrollToSection(f151, 1000, figmaEase);
+        } else if (scrollY >= f151 - threshold && scrollY < f151 + threshold) {
+          e.preventDefault();
+          (window as any).__scrollToSection(f147, 1000, figmaEase);
+        } else if (scrollY >= f147 - threshold && scrollY < f147 + threshold) {
+          e.preventDefault();
+          (window as any).__scrollToSection(f146, 2000, figmaEase);
+        } else if (scrollY >= f146 - threshold && scrollY < f146 + threshold) {
+          e.preventDefault();
+          (window as any).__scrollToSection(f145, 1000, figmaEase);
+        } else if (scrollY >= f145 - threshold && scrollY <= f145 + 150) {
+          // snap back to Hero
           e.preventDefault();
           (window as any).__scrollToSection(0, 1000, figmaEase);
+          if (typeof (window as any).__onReturnToHero === "function") {
+            (window as any).__onReturnToHero();
+          }
         }
       }
     };
