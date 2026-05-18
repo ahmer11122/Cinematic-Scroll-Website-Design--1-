@@ -20,53 +20,6 @@ export function HeroSequence() {
   return (
     <div ref={containerRef} className="relative h-[250vh] bg-[#030301]">
       <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
-        
-        {/* Intro Blueprint Logo Animation */}
-        <motion.div 
-          initial={{ opacity: 1 }}
-          animate={{ opacity: 0 }}
-          transition={{ delay: 1.4, duration: 0.3, ease: "easeInOut" }}
-          className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
-        >
-          <svg width="389" height="201" viewBox="0 0 24 24" fill="none">
-            {/* Construction Lines (Dashed) */}
-            <motion.g 
-              stroke="rgba(255, 255, 249, 0.15)" 
-              strokeWidth="0.1" 
-              strokeDasharray="0.5 0.5"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              {/* Left Circle */}
-              <circle cx="7" cy="12" r="5" />
-              {/* Right Circle */}
-              <circle cx="17" cy="12" r="5" />
-              {/* Horizontal Line */}
-              <line x1="0" y1="12" x2="24" y2="12" />
-              {/* Vertical Line */}
-              <line x1="12" y1="2" x2="12" y2="22" />
-              {/* Diagonals */}
-              <line x1="2" y1="2" x2="22" y2="22" />
-              <line x1="2" y1="22" x2="22" y2="2" />
-              {/* Bounding Box inner vertical lines */}
-              <line x1="7" y1="7" x2="7" y2="17" />
-              <line x1="17" y1="7" x2="17" y2="17" />
-            </motion.g>
-
-            {/* Solid Infinity Path Animation */}
-            <motion.path 
-              d="M18 12c0 2-2 4-4 4s-4-2-4-4-2-4-4-4-4 2-4 4 2 4 4 4c2 0 4-2 4-4s2-4 4-4 4 2 4 4z"
-              stroke="#fffff9"
-              strokeWidth="0.15"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
-            />
-          </svg>
-        </motion.div>
 
         {/* Background Image Container */}
         <motion.div 
@@ -77,9 +30,9 @@ export function HeroSequence() {
             initial={{ opacity: 0, width: "529px", height: "274px" }}
             animate={{ opacity: 1, width: "100vw", height: "100vh" }}
             transition={{ 
-              opacity: { delay: 1.4, duration: 0.5 },
-              width: { delay: 1.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] },
-              height: { delay: 1.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }
+              opacity: { delay: 0.2, duration: 0.5 },
+              width: { delay: 0.4, duration: 1.2, ease: [0.16, 1, 0.3, 1] },
+              height: { delay: 0.4, duration: 1.2, ease: [0.16, 1, 0.3, 1] }
             }}
             className="relative flex items-center justify-center"
           >
@@ -93,7 +46,7 @@ export function HeroSequence() {
               className="absolute inset-0 bg-black/20"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 2.8, duration: 1 }}
+              transition={{ delay: 1.2, duration: 1 }}
             />
           </motion.div>
         </motion.div>
@@ -110,7 +63,7 @@ export function HeroSequence() {
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 2.8, duration: 0.8, ease: "easeOut" }}
+              transition={{ delay: 1.2, duration: 0.8, ease: "easeOut" }}
             >
               <div className="capitalize font-['Satoshi',sans-serif] font-black leading-[1.1] text-[#fffff9] text-[64px] md:text-[80px] lg:text-[104px] tracking-tight lg:tracking-[-2.08px] whitespace-nowrap">
                 <p className="mb-0">
@@ -134,7 +87,7 @@ export function HeroSequence() {
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 3.1, duration: 0.8, ease: "easeOut" }}
+              transition={{ delay: 1.5, duration: 0.8, ease: "easeOut" }}
             >
               <div className="font-['Satoshi',sans-serif] text-[#fffff9] text-[24px] md:text-[32px] lg:text-[44px] leading-tight lg:leading-[44px] tracking-tight">
                 <p className="font-normal inline">I Design products and brands that feel clear, human, and </p>
