@@ -20,9 +20,21 @@ export function HeroSequence() {
 
   useEffect(() => {
     const runSequence = async () => {
-      // Frame 0: w: 529px, h: 274px (Initial state loaded automatically on mount)
-      
-      // Navigate to: "Frame 1"
+      // Step 1: Navigate to "Frame 4"
+      // Smart animate, cubic-bezier(0.65, 0.03, 0.33, 0.97), duration: 1000ms, delay: 1ms
+      await controls.start({
+        width: "529px",
+        height: "274px",
+        opacity: 1,
+        scale: 1,
+        transition: {
+          duration: 1.0,
+          ease: [0.65, 0.03, 0.33, 0.97],
+          delay: 0.001,
+        }
+      });
+
+      // Step 2: Navigate to "Frame 1"
       // Smart animate, cubic-bezier(0.65, 0.03, 0.33, 0.97), duration: 1000ms, delay: 1ms
       await controls.start({
         width: "762px",
@@ -34,7 +46,7 @@ export function HeroSequence() {
         }
       });
 
-      // Navigate to: "Frame 2"
+      // Step 3: Navigate to "Frame 2"
       // Smart animate, cubic-bezier(0.65, 0.03, 0.33, 0.97), duration: 1000ms, delay: 1ms
       await controls.start({
         width: "1920px",
@@ -46,7 +58,7 @@ export function HeroSequence() {
         }
       });
 
-      // Navigate to: "Frame 3"
+      // Step 4: Navigate to "Frame 3"
       // Smart animate, cubic-bezier(0.65, 0.03, 0.33, 0.97), duration: 1500ms, delay: 1ms
       await controls.start({
         width: "100vw",
@@ -72,7 +84,7 @@ export function HeroSequence() {
           style={{ scale: scrollScale, opacity: scrollOpacity }}
         >
           <motion.div
-            initial={{ opacity: 1, width: "529px", height: "274px" }}
+            initial={{ opacity: 0, scale: 0.8, width: "529px", height: "274px" }}
             animate={controls}
             className="relative flex items-center justify-center overflow-hidden"
           >
@@ -86,7 +98,7 @@ export function HeroSequence() {
               className="absolute inset-0 bg-black/20"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 2.2, duration: 1 }}
+              transition={{ delay: 3.2, duration: 1 }}
             />
           </motion.div>
         </motion.div>
@@ -96,23 +108,23 @@ export function HeroSequence() {
           
           {/* Text 1 Container for Scroll transform */}
           <motion.div 
-            className="absolute top-[30%] lg:top-[calc(50%+32px)] left-[30px] lg:left-[60px] -translate-y-1/2 w-[90%] lg:w-[645px]"
+            className="absolute top-[30%] lg:top-[calc(50%-10px)] left-[30px] lg:left-[60px] -translate-y-1/2 w-[90%] lg:w-[645px]"
             style={{ opacity: textScrollOpacity, y: textScrollY }}
           >
             {/* Text 1 Inner for Mount animation */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 2.2, duration: 0.8, ease: "easeOut" }}
+              transition={{ delay: 3.2, duration: 0.8, ease: "easeOut" }}
             >
-              <div className="capitalize font-['Satoshi',sans-serif] font-black leading-[1.1] text-[#fffff9] text-[64px] md:text-[80px] lg:text-[104px] tracking-tight lg:tracking-[-2.08px] whitespace-nowrap">
+              <div className="capitalize font-['Satoshi',sans-serif] font-black leading-[1.1] lg:leading-[110%] text-[#fffff9] text-[64px] md:text-[80px] lg:text-[104px] tracking-tight lg:tracking-[-2.08px] whitespace-nowrap">
                 <p className="mb-0">
                   <span className="text-[#fffff9]">Less </span>
-                  <span className="text-[#2c2c2c] mix-blend-screen">noise.</span>
+                  <span className="text-[#2c2c2c]">noise.</span>
                 </p>
-                <p>
+                <p className="mb-0">
                   <span className="text-[#fffff9]">More </span>
-                  <span className="text-[#2c2c2c] mix-blend-screen">impact.</span>
+                  <span className="text-[#2c2c2c]">impact.</span>
                 </p>
               </div>
             </motion.div>
@@ -120,18 +132,18 @@ export function HeroSequence() {
 
           {/* Text 2 Container for Scroll transform */}
           <motion.div 
-            className="absolute top-[60%] lg:top-[calc(50%+32px)] left-[30px] lg:left-[auto] right-[auto] lg:right-[60px] xl:right-[100px] 2xl:right-[150px] -translate-y-1/2 w-[90%] lg:max-w-[569px]"
+            className="absolute top-[60%] lg:top-[calc(50%-10px)] left-[30px] lg:left-[auto] right-[auto] lg:right-[60px] xl:right-[100px] 2xl:right-[150px] -translate-y-1/2 w-[90%] lg:w-[588px] lg:h-[127px]"
             style={{ opacity: textScrollOpacity, y: textScrollY }}
           >
             {/* Text 2 Inner for Mount animation */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 2.5, duration: 0.8, ease: "easeOut" }}
+              transition={{ delay: 3.5, duration: 0.8, ease: "easeOut" }}
             >
               <div className="font-['Satoshi',sans-serif] text-[#fffff9] text-[24px] md:text-[32px] lg:text-[44px] leading-tight lg:leading-[44px] tracking-tight">
-                <p className="font-normal inline">I Design products and brands that feel clear, human, and </p>
-                <p className="font-bold inline">hard to forget.</p>
+                <p className="font-normal text-[#fffff9] mb-0">I Design products and brands that feel clear, human, and</p>
+                <p className="font-bold text-[#fffff9] mb-0">hard to forget.</p>
               </div>
             </motion.div>
           </motion.div>
