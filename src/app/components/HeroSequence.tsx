@@ -1,9 +1,10 @@
-import { motion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
+import { motion, useScroll, useTransform, useAnimation } from "motion/react";
+import { useRef, useEffect } from "react";
 import imgHero from "figma:asset/f86da7fd626a01ceb96b847d0ceddf1eb065f3fd.png";
 
 export function HeroSequence() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const controls = useAnimation();
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -17,6 +18,50 @@ export function HeroSequence() {
   const textScrollOpacity = useTransform(scrollYProgress, [0.4, 0.7], [1, 0]);
   const textScrollY = useTransform(scrollYProgress, [0.4, 0.7], [0, -50]);
 
+  useEffect(() => {
+    const runSequence = async () => {
+      // Frame 0: w: 529px, h: 274px (Initial state loaded automatically on mount)
+      
+      // Navigate to: "Frame 1"
+      // Smart animate, cubic-bezier(0.65, 0.03, 0.33, 0.97), duration: 1000ms, delay: 1ms
+      await controls.start({
+        width: "762px",
+        height: "1080px",
+        transition: {
+          duration: 1.0,
+          ease: [0.65, 0.03, 0.33, 0.97],
+          delay: 0.001,
+        }
+      });
+
+      // Navigate to: "Frame 2"
+      // Smart animate, cubic-bezier(0.65, 0.03, 0.33, 0.97), duration: 1000ms, delay: 1ms
+      await controls.start({
+        width: "1920px",
+        height: "1080px",
+        transition: {
+          duration: 1.0,
+          ease: [0.65, 0.03, 0.33, 0.97],
+          delay: 0.001,
+        }
+      });
+
+      // Navigate to: "Frame 3"
+      // Smart animate, cubic-bezier(0.65, 0.03, 0.33, 0.97), duration: 1500ms, delay: 1ms
+      await controls.start({
+        width: "100vw",
+        height: "100vh",
+        transition: {
+          duration: 1.5,
+          ease: [0.65, 0.03, 0.33, 0.97],
+          delay: 0.001,
+        }
+      });
+    };
+
+    runSequence();
+  }, [controls]);
+
   return (
     <div ref={containerRef} className="relative h-[250vh] bg-[#030301]">
       <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
@@ -27,14 +72,9 @@ export function HeroSequence() {
           style={{ scale: scrollScale, opacity: scrollOpacity }}
         >
           <motion.div
-            initial={{ opacity: 0, width: "529px", height: "274px" }}
-            animate={{ opacity: 1, width: "100vw", height: "100vh" }}
-            transition={{ 
-              opacity: { delay: 0.2, duration: 0.5 },
-              width: { delay: 0.4, duration: 1.2, ease: [0.16, 1, 0.3, 1] },
-              height: { delay: 0.4, duration: 1.2, ease: [0.16, 1, 0.3, 1] }
-            }}
-            className="relative flex items-center justify-center"
+            initial={{ opacity: 1, width: "529px", height: "274px" }}
+            animate={controls}
+            className="relative flex items-center justify-center overflow-hidden"
           >
             <img 
               src={imgHero} 
@@ -46,7 +86,7 @@ export function HeroSequence() {
               className="absolute inset-0 bg-black/20"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 1 }}
+              transition={{ delay: 2.2, duration: 1 }}
             />
           </motion.div>
         </motion.div>
@@ -63,7 +103,7 @@ export function HeroSequence() {
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2, duration: 0.8, ease: "easeOut" }}
+              transition={{ delay: 2.2, duration: 0.8, ease: "easeOut" }}
             >
               <div className="capitalize font-['Satoshi',sans-serif] font-black leading-[1.1] text-[#fffff9] text-[64px] md:text-[80px] lg:text-[104px] tracking-tight lg:tracking-[-2.08px] whitespace-nowrap">
                 <p className="mb-0">
@@ -87,7 +127,7 @@ export function HeroSequence() {
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.5, duration: 0.8, ease: "easeOut" }}
+              transition={{ delay: 2.5, duration: 0.8, ease: "easeOut" }}
             >
               <div className="font-['Satoshi',sans-serif] text-[#fffff9] text-[24px] md:text-[32px] lg:text-[44px] leading-tight lg:leading-[44px] tracking-tight">
                 <p className="font-normal inline">I Design products and brands that feel clear, human, and </p>
@@ -101,3 +141,4 @@ export function HeroSequence() {
     </div>
   );
 }
+

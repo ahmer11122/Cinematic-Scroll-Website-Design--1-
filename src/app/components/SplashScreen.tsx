@@ -9,28 +9,10 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (video) {
-      // Set playback speed to 1.8x (8-second video finishes in ~4.44s)
-      video.playbackRate = 1.8;
-
-      // Safe-guard event listener to re-apply 1.8x speed when video starts playing
-      const handlePlay = () => {
-        video.playbackRate = 1.8;
-      };
-      video.addEventListener("play", handlePlay);
-      
-      return () => {
-        video.removeEventListener("play", handlePlay);
-      };
-    }
-  }, []);
-
-  useEffect(() => {
-    // Artificial timeout of 4.5 seconds (4500ms) to trigger splash screen fade out and completion
+    // Artificial timeout of 6.0 seconds (6000ms) to trigger splash screen fade out and completion
     const timer = setTimeout(() => {
       onFinish();
-    }, 4500);
+    }, 6000);
 
     return () => clearTimeout(timer);
   }, [onFinish]);
@@ -55,6 +37,8 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
           playsInline
           className="w-full h-full object-contain pointer-events-none"
         />
+        {/* Watermark Mask (covers bottom-right watermark seamlessly) */}
+        <div className="absolute bottom-0 right-0 w-[15%] h-[8%] bg-black pointer-events-none z-20" />
       </div>
     </motion.div>
   );
