@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll, useTransform, useMotionValue, useMotionValueEvent } from "motion/react";
 import { useRef, useState, useEffect } from "react";
 import imgPortrait from "/frame76.webp";
 
@@ -17,6 +17,24 @@ function useScale() {
   return scale;
 }
 
+/** Linearly interpolate a value through keyframe pairs */
+function interpolate(
+  input: number,
+  inputRange: number[],
+  outputRange: number[]
+): number {
+  const len = inputRange.length;
+  if (input <= inputRange[0]) return outputRange[0];
+  if (input >= inputRange[len - 1]) return outputRange[len - 1];
+  for (let i = 0; i < len - 1; i++) {
+    if (input >= inputRange[i] && input <= inputRange[i + 1]) {
+      const t = (input - inputRange[i]) / (inputRange[i + 1] - inputRange[i]);
+      return outputRange[i] + t * (outputRange[i + 1] - outputRange[i]);
+    }
+  }
+  return outputRange[len - 1];
+}
+
 export function WhoSequence() {
   const containerRef = useRef<HTMLDivElement>(null);
   const scale = useScale();
@@ -26,8 +44,8 @@ export function WhoSequence() {
     offset: ["start start", "end start"],
   });
 
-  // Sticky Background color transition from White to Black
-  const bg = useTransform(scrollYProgress, [0.38, 0.48], ["#f9f9f9", "#030301"]);
+  // Sticky Background color transition from White to Black and back to White
+  const bg = useTransform(scrollYProgress, [0.38, 0.48, 0.94, 1.0], ["#f9f9f9", "#030301", "#030301", "#f9f9f9"]);
 
   // --- Title Text Coordinates ("Who I AM?") ---
   const whoLeft = useTransform(scrollYProgress, [0.0, 0.24, 0.34], [611.98, 611.98, -528]);
@@ -36,22 +54,21 @@ export function WhoSequence() {
   const iamLeft = useTransform(scrollYProgress, [0.0, 0.24, 0.34], [940.12, 940.12, 2080]);
   const iamTop = useTransform(scrollYProgress, [0.08, 0.18], [462, 262]);
 
-  const titleOpacity = useTransform(scrollYProgress, [0.34, 0.38], [1, 0]);
-
   // --- Portrait Image Dimensions & Coordinates ---
-  const portraitOpacity = useTransform(scrollYProgress, [0.08, 0.14, 0.88, 0.98], [0, 1, 1, 0]);
-  const portraitWidth = useTransform(scrollYProgress, [0.0, 0.24, 0.34, 0.38, 0.48, 1.0], [342, 342, 508, 508, 2158, 2158]);
-  const portraitHeight = useTransform(scrollYProgress, [0.0, 0.24, 0.34, 0.38, 0.48, 1.0], [480, 480, 710, 710, 2639, 2639]);
+  // Frame 162: massive (2158x2639) around 0.88 to 0.94
+  // Frame 163: shrinks down to 576x709 at 1.0
+  const portraitWidth = useTransform(scrollYProgress, [0.0, 0.24, 0.34, 0.38, 0.48, 0.94, 1.0], [342, 342, 508, 508, 2158, 2158, 576]);
+  const portraitHeight = useTransform(scrollYProgress, [0.0, 0.24, 0.34, 0.38, 0.48, 0.94, 1.0], [421, 421, 626, 626, 2639, 2639, 709]);
+  
+  // --- Final Text Elements Opacity (Frame 163) ---
+  const finalTextOpacity = useTransform(scrollYProgress, [0.88, 1.0], [0, 1]);
   
   const portraitTop = useTransform(
     scrollYProgress, 
-    [0.0, 0.08, 0.18, 0.24, 0.34, 0.38, 0.48, 0.58, 0.68, 0.78, 0.88, 1.0], 
-    [1080, 1080, 528, 528, 185, 185, -233, -233, -721, -1126, -1541, -1900]
+    [0.0, 0.08, 0.18, 0.24, 0.34, 0.38, 0.48, 0.58, 0.68, 0.78, 0.88, 0.94, 1.0], 
+    [1080, 1080, 528, 528, 185, 185, -233, -233, -721, -1126, -1541, -1541, 186]
   );
-  const portraitLeft = useTransform(scrollYProgress, [0.0, 0.24, 0.34, 0.38, 0.48, 1.0], [789, 789, 706, 706, -118, -118]);
-
-  // --- Detail Section & Layout Dimensions ---
-  const detailsOpacity = useTransform(scrollYProgress, [0.0, 0.38, 0.48, 0.88, 0.98], [0, 0, 1, 1, 0]);
+  const portraitLeft = useTransform(scrollYProgress, [0.0, 0.24, 0.34, 0.38, 0.48, 0.94, 1.0], [789, 789, 706, 706, -118, -118, 792]);
 
   // --- Paragraph Positions (Parallax offsets mapped to scrollYProgress) ---
   const p1Top = useTransform(scrollYProgress, [0.48, 0.58, 0.68, 0.78], [327, 207, -563, -563]);
@@ -60,16 +77,27 @@ export function WhoSequence() {
   const p4Top = useTransform(scrollYProgress, [0.48, 0.58, 0.68, 0.78, 0.88], [1476, 1476, 706, 606, 606]);
 
   // --- Paragraph Colors ---
-  const p1Color = useTransform(scrollYProgress, [0.48, 0.58, 0.62], ["#fffff9", "#fffff9", "#808080"]);
-  const p2Color = useTransform(scrollYProgress, [0.54, 0.58, 0.68, 0.72], ["#808080", "#fffff9", "#fffff9", "#808080"]);
-  const p3Color = useTransform(scrollYProgress, [0.64, 0.68, 0.78, 0.82], ["#808080", "#fffff9", "#fffff9", "#808080"]);
-  const p4Color = useTransform(scrollYProgress, [0.74, 0.78, 0.88, 0.92], ["#808080", "#fffff9", "#fffff9", "#808080"]);
+  const p1Color = useTransform(scrollYProgress, [0.38, 0.48, 0.58, 0.62, 0.66], ["rgba(255,255,249,0)", "#fffff9", "#fffff9", "#808080", "rgba(255,255,249,0)"]);
+  const p2Color = useTransform(scrollYProgress, [0.48, 0.54, 0.58, 0.68, 0.72, 0.76], ["rgba(255,255,249,0)", "#808080", "#fffff9", "#fffff9", "#808080", "rgba(255,255,249,0)"]);
+  const p3Color = useTransform(scrollYProgress, [0.58, 0.64, 0.68, 0.78, 0.82, 0.86], ["rgba(255,255,249,0)", "#808080", "#fffff9", "#fffff9", "#808080", "rgba(255,255,249,0)"]);
+  const p4Color = useTransform(scrollYProgress, [0.68, 0.74, 0.78, 0.88, 0.92, 0.96], ["rgba(255,255,249,0)", "#808080", "#fffff9", "#fffff9", "#808080", "rgba(255,255,249,0)"]);
+
+  // --- Opacity values (manual via useMotionValue to bypass Framer v12 opacity bug) ---
+  const titleOpacity = useMotionValue(1);
+  const portraitOpacity = useMotionValue(0);
+  const detailsOpacity = useMotionValue(0);
+
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    titleOpacity.set(interpolate(latest, [0.34, 0.38], [1, 0]));
+    portraitOpacity.set(interpolate(latest, [0.08, 0.14, 1.0], [0, 1, 1]));
+    detailsOpacity.set(interpolate(latest, [0.0, 0.38, 0.48, 0.82, 0.88], [0, 0, 1, 1, 0]));
+  });
 
   return (
     <div ref={containerRef} className="relative h-[800vh]">
       {/* Sticky Frame viewport container */}
       <motion.div 
-        className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center transition-colors duration-300"
+        className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center"
         style={{ backgroundColor: bg }}
       >
         
@@ -81,7 +109,9 @@ export function WhoSequence() {
           {/* Centered / Sliding Title Text Layer */}
           <motion.div 
             className="absolute z-20 w-[1920px] h-[1080px] pointer-events-none"
-            style={{ opacity: titleOpacity }}
+            style={{ 
+              opacity: titleOpacity
+            }}
           >
             <motion.div 
               className="absolute text-[#2c2c2c] font-['Satoshi',sans-serif] font-black text-[142.01px] leading-[1.1] tracking-[-0.02em] capitalize whitespace-nowrap"
@@ -133,30 +163,13 @@ export function WhoSequence() {
             />
           </motion.div>
 
-          {/* Final Details & Layout Layer */}
+          {/* Final Details & Layout Layer — paragraphs for frames 161-163 */}
           <motion.div 
             className="absolute inset-0 z-30 pointer-events-none w-[1920px] h-[1080px]"
-            style={{ opacity: detailsOpacity }}
+            style={{ 
+              opacity: detailsOpacity
+            }}
           >
-            {/* Signature Visual Typography Elements from Figma */}
-            {/* Less noise. More impact. */}
-            <div className="absolute left-[60px] top-[368px] w-[628px] h-[154px]">
-              <div className="absolute capitalize font-['Satoshi',sans-serif] font-black leading-[1.1] left-0 not-italic text-[#fffff9] text-[104px] top-0 tracking-[-2.08px] whitespace-nowrap">
-                <p className="mb-0">
-                  Less <span className="text-[#2c2c2c]">noise.</span>
-                </p>
-                <p>
-                  More <span className="text-[#2c2c2c]">impact.</span>
-                </p>
-              </div>
-            </div>
-
-            {/* I Design products... */}
-            <div className="absolute left-[1353px] top-[218px] w-[505px] h-[120px]">
-              <div className="absolute font-['Satoshi',sans-serif] font-normal leading-[44px] left-0 not-italic text-[#fffff9] text-[44px] top-0 w-[569px] whitespace-pre-wrap">
-                I Design products and brands that feel clear, human, and <span className="font-bold">hard to forget.</span>
-              </div>
-            </div>
 
             {/* Paragraph sets absolute positioned and parallax offset driven */}
             <div className="relative w-full h-[1080px]">
@@ -217,14 +230,45 @@ export function WhoSequence() {
                 }}
               >
                 <p className="font-['Satoshi',sans-serif] text-[40px] leading-[56px] tracking-tight">
-                  Good design isn’t decoration — it’s direction, shaping how people feel, interact, trust, and connect with a product from the very first click.
+                  Good design isn't decoration — it's direction, shaping how people feel, interact, trust, and connect with a product from the very first click.
                 </p>
               </motion.div>
-
             </div>
           </motion.div>
-        </div>
 
+          {/* Final Text Elements (Frame 163) */}
+          <motion.div 
+            className="absolute inset-0 z-40 pointer-events-none"
+            style={{ opacity: finalTextOpacity }}
+          >
+            {/* "Less noise. More impact." */}
+            <div className="absolute z-20 left-[60px] top-[368px] w-[628px] h-[154px]">
+              <div className="absolute capitalize font-['Satoshi',sans-serif] font-black text-[104px] leading-[0] left-0 top-0 tracking-[-2.08px] whitespace-nowrap">
+                <p className="mb-0">
+                  <span className="leading-[1.1] text-[#fffff9]">{"Less "}</span>
+                  <span className="leading-[1.1] text-[#2c2c2c]">noise.</span>
+                </p>
+                <p>
+                  <span className="leading-[1.1] text-[#fffff9]">{"More "}</span>
+                  <span className="leading-[1.1] text-[#2c2c2c]">impact.</span>
+                </p>
+              </div>
+            </div>
+
+            {/* "I Design products and brands..." */}
+            <div className="absolute z-20 left-[1353px] top-[218px] w-[505px] h-[120px]">
+              <div className="absolute font-['Satoshi',sans-serif] h-[127px] leading-[0] left-0 top-0 w-[569px] whitespace-pre-wrap">
+                <p className="leading-[44px] mb-0 text-[44px] text-[#fffff9]">
+                  {"I Design products and brands that feel clear, human, and "}
+                </p>
+                <p className="font-bold leading-[44px] text-[44px] text-[#fffff9]">
+                  hard to forget.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+        </div>
       </motion.div>
     </div>
   );
