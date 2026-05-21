@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { ReactLenis } from "lenis/react";
 import { AnimatePresence } from "motion/react";
 import Lenis from "lenis";
 import { NavBar } from "./components/NavBar";
@@ -62,7 +63,7 @@ export default function App() {
         about: 2.5 * vh,
         expertise: 10.5 * vh,
         work: 16.5 * vh,
-        contact: 24.5 * vh,
+        contact: 28.5 * vh,
       };
     };
 
@@ -91,156 +92,78 @@ export default function App() {
       const f164 = expStart + (6 * vh * 0.15); // Frame 164: White bg, text centered, image 1px
       const f165 = expStart + (6 * vh * 0.25); // Frame 165: Black wipe complete
       const f166 = expStart + (6 * vh * 0.35); // Frame 166: Content revealed, skill 1
-      const f172 = expStart + (6 * vh * 1.0);  // Frame 172: All skills revealed
+      const f171 = expStart + (6 * vh * 0.50); // Frame 171: Skill 2 active
+      const f172 = expStart + (6 * vh * 0.60); // Frame 172: Skill 3 active
+      const f174 = expStart + (6 * vh * 0.70); // Frame 174: Skill 4 active
+      const f175 = expStart + (6 * vh * 0.85); // Frame 175: Skill 4 fully read, transition pre-start
+      
+      const workStart = 16.5 * vh;
+      const wTitle = workStart + 0.10 * 11 * vh;   // Work title enters / bg goes black (p = 0.10)
+      const wCard1 = workStart + 0.26 * 11 * vh;   // Card 1 active / centered (p = 0.26)
+      const wCard2 = workStart + 0.42 * 11 * vh;   // Card 2 active / centered (p = 0.42)
+      const wCard3 = workStart + 0.58 * 11 * vh;   // Card 3 active / centered (p = 0.58)
+      const wCard4 = workStart + 0.74 * 11 * vh;   // Card 4 active / centered (p = 0.74)
+      const wExit = workStart + 1.00 * 11 * vh;    // Work Exit / transition out (p = 1.00)
+      const contactStart = 28.5 * vh;
+
+      // Contact snap points mapping to each Figma frame transition
+      const c209 = contactStart + 0.02 * 3 * vh;   // Frame 209: Image full screen (p = 0.02)
+      const c200 = contactStart + 0.25 * 3 * vh;   // Frame 200: Image + "your go to designer" text (p = 0.25)
+      const c202 = contactStart + 0.55 * 3 * vh;   // Frame 202: Image shrunken, white bg (p = 0.55)
+      const c203 = contactStart + 0.88 * 3 * vh;   // Frame 203: Contact final details (p = 0.88)
 
       // Downwards key triggers: ArrowDown, Spacebar (without shift), PageDown
       const isDownKey = e.key === "ArrowDown" || (e.key === " " && !e.shiftKey) || e.key === "PageDown";
       // Upwards key triggers: ArrowUp, Spacebar (with shift), PageUp
       const isUpKey = e.key === "ArrowUp" || (e.key === " " && e.shiftKey) || e.key === "PageUp";
 
-      const threshold = 100; // Tolerance threshold to detect snap positions
+      if (isDownKey || isUpKey) {
+        // Collect all logical snaps across the entire page layout
+        const snaps = [
+          0,                                                    // Hero
+          f145, f146, f149, f147, f151, f152, f160, f161, f162, // Who I Am
+          expStart, f164, f165, f166, f171, f172, f174, f175,   // Expertise
+          wTitle, wCard1, wCard2, wCard3, wCard4, wExit,        // Work
+          c209, c200, c202, c203                                // Contact
+        ];
 
-      if (isDownKey) {
-        if (scrollY < f145 - threshold) {
-          // 1. From Hero, scroll to f145 -> f146 automatically (smart animate 1000ms / 1500ms)
-          e.preventDefault();
-          (window as any).__scrollToSection(f145, 1000, figmaEase, () => {
-            setTimeout(() => {
-              (window as any).__scrollToSection(f146, 1000, figmaEase);
-            }, 1);
-          });
-        } else if (scrollY >= f145 - threshold && scrollY < f146 - threshold) {
-          // 2. From f145 snap to f146
-          e.preventDefault();
-          (window as any).__scrollToSection(f146, 1000, figmaEase);
-        } else if (scrollY >= f146 - threshold && scrollY < f149 - threshold) {
-          // 3. From f146 snap to f149 -> f147 (smart animate with 2000ms delay curve)
-          e.preventDefault();
-          (window as any).__scrollToSection(f149, 1000, figmaEase, () => {
-            setTimeout(() => {
-              (window as any).__scrollToSection(f147, 2000, figmaEase);
-            }, 1);
-          });
-        } else if (scrollY >= f149 - threshold && scrollY < f147 - threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f147, 2000, figmaEase);
-        } else if (scrollY >= f147 - threshold && scrollY < f151 - threshold) {
-          // 4. From f147 snap to f151
-          e.preventDefault();
-          (window as any).__scrollToSection(f151, 1000, figmaEase);
-        } else if (scrollY >= f151 - threshold && scrollY < f152 - threshold) {
-          // 5. From f151 snap to f152
-          e.preventDefault();
-          (window as any).__scrollToSection(f152, 1000, figmaEase);
-        } else if (scrollY >= f152 - threshold && scrollY < f160 - threshold) {
-          // 6. From f152 snap to f160
-          e.preventDefault();
-          (window as any).__scrollToSection(f160, 1000, figmaEase);
-        } else if (scrollY >= f160 - threshold && scrollY < f161 - threshold) {
-          // 7. From f160 snap to f161
-          e.preventDefault();
-          (window as any).__scrollToSection(f161, 1000, figmaEase);
-        } else if (scrollY >= f161 - threshold && scrollY < f162 - threshold) {
-          // 8. From f161 snap to f162, then chain f163 -> f164 -> f165 -> f166
-          e.preventDefault();
-          (window as any).__scrollToSection(f162, 1000, figmaEase, () => {
-            setTimeout(() => {
-              (window as any).__scrollToSection(endWho, 1000, figmaEase, () => {
-                setTimeout(() => {
-                  (window as any).__scrollToSection(f164, 1000, figmaEase, () => {
-                    setTimeout(() => {
-                      (window as any).__scrollToSection(f165, 1000, figmaEase, () => {
-                        setTimeout(() => {
-                          (window as any).__scrollToSection(f166, 1000, figmaEase);
-                        }, 200);
-                      });
-                    }, 1);
-                  });
-                }, 1);
-              });
-            }, 1);
-          });
-        } else if (scrollY >= f162 - threshold && scrollY < endWho - threshold) {
-          // 9. If paused at f162, chain down
-          e.preventDefault();
-          (window as any).__scrollToSection(endWho, 1000, figmaEase, () => {
-            setTimeout(() => {
-              (window as any).__scrollToSection(f164, 1000, figmaEase, () => {
-                setTimeout(() => {
-                  (window as any).__scrollToSection(f165, 1000, figmaEase, () => {
-                    setTimeout(() => {
-                      (window as any).__scrollToSection(f166, 1000, figmaEase);
-                    }, 200);
-                  });
-                }, 1);
-              });
-            }, 1);
-          });
-        } else if (scrollY >= endWho - threshold && scrollY < f164 - threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f164, 1000, figmaEase, () => {
-            setTimeout(() => {
-              (window as any).__scrollToSection(f165, 1000, figmaEase, () => {
-                setTimeout(() => {
-                  (window as any).__scrollToSection(f166, 1000, figmaEase);
-                }, 200);
-              });
-            }, 1);
-          });
-        } else if (scrollY >= f164 - threshold && scrollY < f165 - threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f165, 1000, figmaEase, () => {
-            setTimeout(() => {
-              (window as any).__scrollToSection(f166, 1000, figmaEase);
-            }, 200);
-          });
-        } else if (scrollY >= f165 - threshold && scrollY < f166 - threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f166, 1000, figmaEase);
-        } else if (scrollY >= f166 - threshold && scrollY < f172 - threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f172, 1000, figmaEase);
-        }
-      } else if (isUpKey) {
-        if (scrollY >= f166 - threshold && scrollY < f166 + threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f165, 1000, figmaEase);
-        } else if (scrollY >= f165 - threshold && scrollY < f165 + threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f160, 1000, figmaEase);
-        } else if (scrollY >= f164 - threshold && scrollY < f164 + threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f160, 1000, figmaEase);
-        } else if (scrollY >= endWho - threshold && scrollY < endWho + threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f160, 1000, figmaEase);
-        } else if (scrollY >= f162 - threshold && scrollY < f162 + threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f160, 1000, figmaEase);
-        } else if (scrollY >= f161 - threshold && scrollY < f161 + threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f160, 1000, figmaEase);
-        } else if (scrollY >= f160 - threshold && scrollY < f160 + threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f152, 1000, figmaEase);
-        } else if (scrollY >= f152 - threshold && scrollY < f152 + threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f151, 1000, figmaEase);
-        } else if (scrollY >= f151 - threshold && scrollY < f151 + threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f146, 1000, figmaEase);
-        } else if (scrollY >= f147 - threshold && scrollY < f147 + threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f146, 2000, figmaEase);
-        } else if (scrollY >= f146 - threshold && scrollY < f146 + threshold) {
-          e.preventDefault();
-          (window as any).__scrollToSection(f145, 1000, figmaEase);
-        } else if (scrollY >= f145 - threshold && scrollY <= f145 + 150) {
-          // snap back to Hero
-          e.preventDefault();
-          (window as any).__scrollToSection(0, 1000, figmaEase);
-          if (typeof (window as any).__onReturnToHero === "function") {
-            (window as any).__onReturnToHero();
+        // Sort and filter out duplicate or extremely close snap points (within 50px)
+        const sortedSnaps = [...snaps].sort((a, b) => a - b);
+        const uniqueSnaps = sortedSnaps.reduce((acc: number[], val) => {
+          if (acc.length === 0 || val - acc[acc.length - 1] > 50) {
+            acc.push(val);
+          }
+          return acc;
+        }, []);
+
+        const getCustomDuration = (to: number) => {
+          if (Math.abs(to - c209) < 10) return 1500;
+          if (Math.abs(to - c200) < 10) return 1000;
+          if (Math.abs(to - c202) < 10) return 1500;
+          if (Math.abs(to - c203) < 10) return 1500;
+          if (Math.abs(to - f146) < 10) return 1500;
+          return 1200;
+        };
+
+        if (isDownKey) {
+          // Find the next snap point strictly ahead of our current scroll position
+          const nextSnap = uniqueSnaps.find(s => s > scrollY + 20);
+          if (nextSnap !== undefined) {
+            e.preventDefault();
+            const duration = getCustomDuration(nextSnap);
+            (window as any).__scrollToSection(nextSnap, duration, figmaEase);
+          }
+        } else {
+          // Find the previous snap point strictly behind our current scroll position
+          const prevSnap = [...uniqueSnaps].reverse().find(s => s < scrollY - 20);
+          if (prevSnap !== undefined) {
+            e.preventDefault();
+            const duration = getCustomDuration(prevSnap);
+            (window as any).__scrollToSection(prevSnap, duration, figmaEase);
+            // If we are returning to Hero, call the return-to-hero callback
+            if (prevSnap === 0 && typeof (window as any).__onReturnToHero === "function") {
+              (window as any).__onReturnToHero();
+            }
           }
         }
       }
@@ -265,14 +188,16 @@ export default function App() {
       </AnimatePresence>
 
       {isSplashFinished && (
-        <main className="relative min-h-screen bg-[#030301] selection:bg-white selection:text-black">
-          <NavBar />
-          <HeroSequence />
-          <WhoSequence />
-          <ExpertiseSequence />
-          <WorkSequence />
-          <ContactSequence />
-        </main>
+        <ReactLenis root>
+          <main className="relative min-h-screen bg-[#030301] selection:bg-white selection:text-black">
+            <NavBar />
+            <HeroSequence />
+            <WhoSequence />
+            <ExpertiseSequence />
+            <WorkSequence />
+            <ContactSequence />
+          </main>
+        </ReactLenis>
       )}
     </>
   );
